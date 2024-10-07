@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <title>3D Orrery</title>
+  <meta name="author" content="Logic Loopers, NASA Space Apps Challenge Team. Ericson López, Andrés Herrera, Mateo Vivanco, Pablo Herrera, Sebastían Encalada, Juan Diego Chicaiza">
+
+  <!-- Enlaces a los recursos X3D y al archivo CSS -->
+  <script type="text/javascript" src="https://www.x3dom.org/release/x3dom.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://www.x3dom.org/release/x3dom.css">
+  <link rel="stylesheet" type="text/css" href="css/body.css"> <!-- Enlace al archivo CSS externo -->
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <link rel="stylesheet" type="text/css" href="css/boton.css">
+  <link rel="stylesheet" type="text/css" href="css/card.css">
+  <link rel="stylesheet" type="text/css" href="css/slider.css">
+</head>
+
+<body onload="startUpdate() ; adjustContainerSize() ; hideInfoBox()">
+
+  <!-- Contenedor principal -->
+  <div class="container" id="container">
+    <h1>3D Orrery</h1>
+
+    
+
+    <!-- Escena X3D -->
+    <p class="case">
+      <x3d xmlns="http://www.web3d.org/specifications/x3d-namespace" showStat="false" showLog="false" x="0px" y="0px">
+        <scene>
+          <Viewpoint id="initialView" position="0 0 100" orientation="0 0 0 0" fieldOfView="0.785398"
+            description="Vista Inicial"></Viewpoint>
+          <NavigationInfo id="navInfo"></NavigationInfo>
+          <Background DEF='bgnd' transparency='0' skyColor='0 0.0 0.0'></Background>
+          <Transform id="Sun" translation="0 0 0">
+            <Shape>
+              <Appearance>
+                <ImageTexture url="Images/SunImage.jpg" />
+                <Material id="SunMaterial" diffuseColor="1 1 0"></Material>
+              </Appearance>
+              <Sphere radius='1'></Sphere>
+            </Shape>
+          </Transform>
+          <Transform id="Objects" translation="0 0 0"></Transform>
+        </scene>
+      </x3d>
+    </p>
+
+    <!-- Infobox para mostrar información de los planetas -->
+    <div id="infoBox" class="infobox"></div>
+
+    <div class="function-container">
+      <!-- Slider en la esquina inferior izquierda -->
+      <div class="PB-range-slider-div">
+        <h3>Time Step</h3>
+        <input type="range" min="-3" max="2" value="1" step="0.025" class="PB-range-slider" id="myRange">
+        <p class="PB-range-slidervalue">100</p>
+      </div>
+      <!-- Dropdown para pausa -->
+      <div class="dropdown">
+        <button class="btn-17" id="pausa">
+          <span class="text-container">
+            <span class="text">Stop/Play</span>
+          </span>
+        </button>
+      </div>
+      <!-- Dropdown para Planetas -->
+      <div class="dropdown">
+        <button class="btn-17" id="open-card-btn-planetas">
+          <span class="text-container">
+            <span class="text">Principal celestial bodies</span>
+          </span>
+        </button>
+        <div class="card" id="card-planetas" style="display: none;">
+          <div class="card-overlay"></div>
+          <div class="card-inner">
+            <div class="buttons-container">
+              <button class="card-btn" data-planet="Sun">Sun</button>
+              <button class="card-btn" data-planet="Mercury">Mercury</button>
+              <button class="card-btn" data-planet="Mars">Mars</button>
+              <button class="card-btn" data-planet="Venus">Venus</button>
+              <button class="card-btn" data-planet="Earth">Earth</button>
+              <button class="card-btn" data-planet="Jupiter">Jupiter</button>
+              <button class="card-btn" data-planet="Saturn">Saturn</button>
+              <button class="card-btn" data-planet="Uranus">Uranus</button>
+              <button class="card-btn" data-planet="Neptune">Neptune</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dropdown para Astros -->
+      <div class="dropdown">
+        <button class="btn-17" id="open-card-btn-astros">
+          <span class="text-container">
+            <span class="text">Other celestial bodies</span>
+          </span>
+        </button>
+        <div class="card" id="card-astros" style="display: none;">
+          <div class="card-overlay"></div>
+          <div class="card-inner">
+            <div class="buttons-container">
+              <button class="card-btn" data-planet="Pluto">Pluto</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="PB-range-slider-div">
+        <h3>Solar Mass Factor</h3>
+        <!--The lightest star is 0.08 solar masses and the heaviest is aproximadetely 150 solar masses
+        The slider goes from 0.1 to 20 solar masses-->
+        <input type="range" min="0.1" max="20" step = "0.1" value="1.0" class="PB-range-slider" id="solarMass">
+        <p class="PB-range-solarvalue">0.75</p>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    // Función para ajustar el tamaño del contenedor dinámicamente
+    function adjustContainerSize() {
+      const container = document.getElementById('container');
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+
+      // Ajusta el tamaño del contenedor en función del tamaño de la ventana
+      container.style.width = `${windowWidth * 0.9}px`;  // 90% del ancho de la ventana
+      container.style.height = `${windowHeight * 0.8}px`;  // 80% de la altura de la ventana
+
+      // Ajusta el X3D también
+      const x3dElement = document.querySelector('.case x3d');
+      x3dElement.style.height = `${windowHeight * 0.6}px`; // 60% de la altura de la ventana
+    }
+
+    // Ajustar tamaño del contenedor al cambiar el tamaño de la ventana
+    window.onresize = adjustContainerSize;
+  </script>
+
+  <p id="demo"></p>
+  <script type="text/javascript" src="mission.js"></script>
+  <script type="text/javascript" src="cards.js"></script>
+  <script type="text/javascript" src="planets.js"></script>
+  <script type="text/javascript" src="planetButton.js"></script>
+  <script type="text/javascript" src="infobox.js"></script>
+
+</body>
+
+</html>
